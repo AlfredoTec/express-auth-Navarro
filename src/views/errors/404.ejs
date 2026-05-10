@@ -1,0 +1,25 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main>
+    <div class="container center-align" style="padding-top:80px;">
+        <div class="card z-depth-3" style="max-width:500px; margin:0 auto; border-radius:8px;">
+            <div class="card-content">
+                <i class="material-icons orange-text" style="font-size:100px;">search_off</i>
+                <h3 class="orange-text">404</h3>
+                <h5>Página No Encontrada</h5>
+                <p class="grey-text">La ruta que buscas no existe o ha sido movida.</p>
+            </div>
+            <div class="card-action center-align">
+                <a href="javascript:history.back()" class="btn-flat teal-text waves-effect">
+                    <i class="material-icons left">arrow_back</i>Volver
+                </a>
+                <a href="/signIn" class="btn teal waves-effect waves-light">
+                    <i class="material-icons left">home</i>Inicio
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<%- include('../partials/footer') %>

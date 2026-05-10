@@ -1,0 +1,74 @@
+<nav class="teal darken-2">
+    <div class="nav-wrapper container">
+        <a href="/" class="brand-logo"><i class="material-icons">lock</i> AppAuth</a>
+        <a href="#" data-target="mobile-nav" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+        <ul id="nav-desktop" class="right hide-on-med-and-down">
+            <li id="nav-guest">
+                <a href="/signIn"><i class="material-icons left">login</i>Iniciar Sesión</a>
+            </li>
+            <li id="nav-guest-signup" style="display:none">
+                <a href="/signUp">Registrarse</a>
+            </li>
+            <li id="nav-user" style="display:none">
+                <a href="/dashboard"><i class="material-icons left">dashboard</i>Dashboard</a>
+            </li>
+            <li id="nav-admin" style="display:none">
+                <a href="/admin"><i class="material-icons left">admin_panel_settings</i>Admin</a>
+            </li>
+            <li id="nav-profile" style="display:none">
+                <a href="/profile"><i class="material-icons left">person</i>Mi Cuenta</a>
+            </li>
+            <li id="nav-logout" style="display:none">
+                <a href="#" id="btn-logout"><i class="material-icons left">logout</i>Salir</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<ul class="sidenav" id="mobile-nav">
+    <li><a href="/signIn" id="side-signin">Iniciar Sesión</a></li>
+    <li><a href="/signUp" id="side-signup">Registrarse</a></li>
+    <li><a href="/dashboard" id="side-dashboard" style="display:none">Dashboard</a></li>
+    <li><a href="/admin" id="side-admin" style="display:none">Panel Admin</a></li>
+    <li><a href="/profile" id="side-profile" style="display:none">Mi Cuenta</a></li>
+    <li><a href="#" id="side-logout" style="display:none">Salir</a></li>
+</ul>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const sidenavElems = document.querySelectorAll('.sidenav');
+        M.Sidenav.init(sidenavElems);
+
+        const authenticated = typeof isAuthenticated === 'function' && isAuthenticated();
+        const roles = typeof getUserRoles === 'function' ? getUserRoles() : [];
+        const isAdmin = roles.includes('admin');
+
+        const show = (id) => { const el = document.getElementById(id); if(el) el.style.display = ''; };
+        const hide = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'none'; };
+
+        if (authenticated) {
+            hide('nav-guest');
+            show('nav-user');
+            show('nav-profile');
+            show('nav-logout');
+            show('side-dashboard');
+            show('side-profile');
+            show('side-logout');
+            hide('side-signin');
+            hide('side-signup');
+            if (isAdmin) {
+                show('nav-admin');
+                show('side-admin');
+            }
+        } else {
+            show('side-signin');
+            show('side-signup');
+            hide('side-logout');
+        }
+
+        const sideLogout = document.getElementById('side-logout');
+        if (sideLogout) {
+            sideLogout.addEventListener('click', (e) => { e.preventDefault(); logout(); });
+        }
+    });
+</script>

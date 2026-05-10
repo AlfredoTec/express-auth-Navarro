@@ -1,0 +1,203 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main>
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="card teal darken-3 white-text z-depth-3" style="padding:24px 32px; border-radius:8px;">
+                    <h4 style="margin:0 0 4px;">
+                        <i class="material-icons medium">admin_panel_settings</i>
+                        Panel de Administración
+                    </h4>
+                    <p style="margin:0; opacity:0.85;">Gestión de usuarios registrados en el sistema.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="error-msg" class="red lighten-4 red-text darken-4 card-panel" style="display:none;"></div>
+
+        <div id="loading" class="center-align" style="padding:40px;">
+            <div class="preloader-wrapper big active">
+                <div class="spinner-layer spinner-teal-only">
+                    <div class="circle-clipper left"><div class="circle"></div></div>
+                    <div class="gap-patch"><div class="circle"></div></div>
+                    <div class="circle-clipper right"><div class="circle"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="users-section" style="display:none;">
+            <div class="row">
+                <div class="col s12 m4 l3">
+                    <div class="card teal lighten-5 z-depth-1">
+                        <div class="card-content center-align">
+                            <i class="material-icons large teal-text">group</i>
+                            <h5 id="total-users" class="teal-text">0</h5>
+                            <p class="grey-text">Usuarios registrados</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s12 m4 l3">
+                    <div class="card red lighten-5 z-depth-1">
+                        <div class="card-content center-align">
+                            <i class="material-icons large red-text">manage_accounts</i>
+                            <h5 id="total-admins" class="red-text">0</h5>
+                            <p class="grey-text">Administradores</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card z-depth-2">
+                <div class="card-content">
+                    <span class="card-title">
+                        <i class="material-icons left teal-text">table_chart</i>
+                        Listado de Usuarios
+                    </span>
+                    <div class="input-field" style="max-width:320px;">
+                        <i class="material-icons prefix">search</i>
+                        <input id="search-input" type="text">
+                        <label for="search-input">Buscar usuario...</label>
+                    </div>
+                </div>
+                <div class="card-content" style="padding-top:0; overflow-x:auto;">
+                    <table class="striped responsive-table highlight" id="users-table">
+                        <thead>
+                            <tr class="teal darken-2 white-text">
+                                <th>#</th>
+                                <th>Nombre</th>
+                                <th>Apellido</th>
+                                <th>Email</th>
+                                <th>Teléfono</th>
+                                <th>Edad</th>
+                                <th>Rol</th>
+                                <th>Registro</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Modal detalle usuario -->
+<div id="user-modal" class="modal">
+    <div class="modal-content">
+        <h5 class="teal-text"><i class="material-icons left">account_circle</i>Detalle de Usuario</h5>
+        <div class="row" id="modal-body"></div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close btn-flat teal-text waves-effect">Cerrar</a>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>
+
+<script>
+    guardRoute(['admin']);
+
+    let allUsers = [];
+
+    function renderRow(user, index) {
+        const roles = (user.roles || []).map(r =>
+            `<span class="chip role-${r}" style="margin:0 2px;">${r}</span>`
+        ).join('');
+        const date = user.createdAt
+            ? new Date(user.createdAt).toLocaleDateString('es-PE')
+            : '--';
+        return `
+        <tr>
+            <td>${index + 1}</td>
+            <td>${user.name || '--'}</td>
+            <td>${user.lastName || '--'}</td>
+            <td class="truncate" style="max-width:160px;">${user.email}</td>
+            <td>${user.phoneNumber || '--'}</td>
+            <td>${user.age ?? '--'}</td>
+            <td>${roles}</td>
+            <td>${date}</td>
+            <td>
+                <a href="#user-modal" class="btn-small teal waves-effect waves-light modal-trigger"
+                   onclick="showDetail(${index})">
+                    <i class="material-icons">visibility</i>
+                </a>
+            </td>
+        </tr>`;
+    }
+
+    function renderTable(users) {
+        const tbody = document.getElementById('users-tbody');
+        tbody.innerHTML = users.map((u, i) => renderRow(u, i)).join('');
+    }
+
+    function showDetail(index) {
+        const user = allUsers[index];
+        if (!user) return;
+        const roles = (user.roles || []).map(r =>
+            `<span class="chip role-${r}">${r}</span>`
+        ).join('');
+        const avatarHtml = user.url_profile
+            ? `<img src="${user.url_profile}" class="circle responsive-img" style="width:80px;height:80px;object-fit:cover;">`
+            : `<i class="material-icons" style="font-size:80px;color:#b2dfdb;">account_circle</i>`;
+
+        document.getElementById('modal-body').innerHTML = `
+            <div class="col s12 m4 center-align">${avatarHtml}</div>
+            <div class="col s12 m8">
+                <table class="striped">
+                    <tbody>
+                        <tr><td><b>Nombre</b></td><td>${user.name || '--'} ${user.lastName || ''}</td></tr>
+                        <tr><td><b>Email</b></td><td>${user.email}</td></tr>
+                        <tr><td><b>Teléfono</b></td><td>${user.phoneNumber || '--'}</td></tr>
+                        <tr><td><b>Dirección</b></td><td>${user.address || '--'}</td></tr>
+                        <tr><td><b>F. nacimiento</b></td><td>${user.birthdate ? new Date(user.birthdate).toLocaleDateString('es-PE') : '--'}</td></tr>
+                        <tr><td><b>Edad</b></td><td>${user.age ?? '--'} años</td></tr>
+                        <tr><td><b>Roles</b></td><td>${roles}</td></tr>
+                        <tr><td><b>Registro</b></td><td>${user.createdAt ? new Date(user.createdAt).toLocaleString('es-PE') : '--'}</td></tr>
+                    </tbody>
+                </table>
+            </div>`;
+    }
+
+    async function loadUsers() {
+        try {
+            const res = await apiFetch('/api/users');
+            const users = await res.json();
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('users-section').style.display = 'block';
+
+            allUsers = users;
+            document.getElementById('total-users').textContent = users.length;
+            document.getElementById('total-admins').textContent =
+                users.filter(u => (u.roles || []).includes('admin')).length;
+
+            renderTable(users);
+            M.Modal.init(document.querySelectorAll('.modal'));
+
+        } catch (err) {
+            document.getElementById('loading').style.display = 'none';
+            if (err.message !== 'Sesión expirada' && err.message !== 'Acceso denegado') {
+                const errorDiv = document.getElementById('error-msg');
+                errorDiv.textContent = 'Error al cargar los usuarios';
+                errorDiv.style.display = 'block';
+            }
+        }
+    }
+
+    document.getElementById('search-input').addEventListener('input', function () {
+        const q = this.value.toLowerCase();
+        const filtered = allUsers.filter(u =>
+            (u.name || '').toLowerCase().includes(q) ||
+            (u.lastName || '').toLowerCase().includes(q) ||
+            u.email.toLowerCase().includes(q) ||
+            (u.phoneNumber || '').includes(q)
+        );
+        renderTable(filtered);
+        M.Modal.init(document.querySelectorAll('.modal'));
+    });
+
+    loadUsers();
+</script>

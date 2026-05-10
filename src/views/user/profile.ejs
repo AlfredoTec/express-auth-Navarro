@@ -1,0 +1,277 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main>
+    <div class="container">
+        <h4 class="teal-text darken-2">
+            <i class="material-icons medium">account_circle</i> Mi Cuenta
+        </h4>
+
+        <div id="alert-container"></div>
+
+        <style>
+            @keyframes fadeInDown {
+                from { opacity: 0; transform: translateY(-12px); }
+                to   { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to   { opacity: 0; height: 0; padding: 0; margin: 0; }
+            }
+            .alert-dismissible {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border-radius: 6px;
+                padding: 12px 16px;
+                margin-bottom: 12px;
+                animation: fadeInDown 0.3s ease;
+            }
+            .alert-dismissible.fade-out {
+                animation: fadeOut 0.5s ease forwards;
+            }
+            .alert-dismissible .alert-text { flex: 1; font-weight: 500; }
+            .alert-dismissible .alert-close {
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 0 0 0 12px;
+                font-size: 1.2rem;
+                line-height: 1;
+                opacity: 0.7;
+            }
+            .alert-dismissible .alert-close:hover { opacity: 1; }
+
+            .birthdate-wrapper {
+                position: relative;
+                margin-top: 8px;
+            }
+            .birthdate-wrapper label.birthdate-label {
+                font-size: 0.75rem;
+                color: #26a69a;
+                display: block;
+                margin-bottom: 4px;
+                margin-left: 44px;
+            }
+            .birthdate-wrapper .birthdate-inner {
+                display: flex;
+                align-items: center;
+                border-bottom: 2px solid #26a69a;
+                padding: 4px 0 6px;
+            }
+            .birthdate-wrapper .birthdate-inner i {
+                color: #9e9e9e;
+                margin-right: 12px;
+                width: 2rem;
+                text-align: center;
+            }
+            .birthdate-wrapper input[type="date"] {
+                border: none !important;
+                outline: none !important;
+                box-shadow: none !important;
+                flex: 1;
+                font-size: 1rem;
+                color: #212121;
+                background: transparent;
+                padding: 0;
+                margin: 0;
+                height: auto;
+            }
+            .birthdate-wrapper input[type="date"]::-webkit-calendar-picker-indicator {
+                cursor: pointer;
+                opacity: 0.6;
+            }
+            .birthdate-wrapper input[type="date"]::-webkit-calendar-picker-indicator:hover {
+                opacity: 1;
+            }
+        </style>
+
+        <div id="loading" class="center-align" style="padding:40px;">
+            <div class="preloader-wrapper big active">
+                <div class="spinner-layer spinner-teal-only">
+                    <div class="circle-clipper left"><div class="circle"></div></div>
+                    <div class="gap-patch"><div class="circle"></div></div>
+                    <div class="circle-clipper right"><div class="circle"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="profile-section" style="display:none;">
+            <div class="row">
+                <div class="col s12 m4">
+                    <div class="card teal darken-2 white-text center-align" style="padding:24px; border-radius:8px;">
+                        <div id="avatar-container">
+                            <i class="material-icons" style="font-size:80px;">account_circle</i>
+                        </div>
+                        <h5 id="display-name" style="margin:8px 0 4px;"></h5>
+                        <p id="display-email" style="margin:0; opacity:0.85;"></p>
+                        <div id="display-roles" style="margin-top:10px;"></div>
+                        <p style="margin-top:8px; font-size:0.9rem;">Edad: <strong id="display-age"></strong> años</p>
+                    </div>
+                </div>
+
+                <div class="col s12 m8">
+                    <div class="card z-depth-2">
+                        <div class="card-content">
+                            <span class="card-title">Editar información</span>
+                            <form id="profile-form">
+                                <div class="row">
+                                    <div class="input-field col s12 m6">
+                                        <i class="material-icons prefix">person</i>
+                                        <input id="name" type="text">
+                                        <label for="name" class="active">Nombre</label>
+                                    </div>
+                                    <div class="input-field col s12 m6">
+                                        <i class="material-icons prefix">person_outline</i>
+                                        <input id="lastName" type="text">
+                                        <label for="lastName" class="active">Apellido</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12 m6">
+                                        <i class="material-icons prefix">phone</i>
+                                        <input id="phoneNumber" type="tel">
+                                        <label for="phoneNumber" class="active">Teléfono</label>
+                                    </div>
+                                    <div class="input-field col s12 m6">
+    <i class="material-icons prefix">cake</i>
+    <input id="birthdate" type="date">
+    <label for="birthdate" class="active">Fecha de nacimiento</label>
+</div>
+                                </div>
+                                <div class="input-field">
+                                    <i class="material-icons prefix">home</i>
+                                    <input id="address" type="text">
+                                    <label for="address" class="active">Dirección</label>
+                                </div>
+                                <div class="input-field">
+                                    <i class="material-icons prefix">image</i>
+                                    <input id="url_profile" type="url">
+                                    <label for="url_profile" class="active">URL Foto de perfil</label>
+                                </div>
+                                <div class="input-field">
+                                    <i class="material-icons prefix">lock</i>
+                                    <input id="newPassword" type="password" placeholder="Dejar vacío para no cambiar">
+                                    <label for="newPassword" class="active">Nueva contraseña</label>
+                                    <span class="helper-text">Mín. 8 caracteres, 1 mayúscula, 1 dígito y 1 especial (#$%&amp;*@)</span>
+                                </div>
+                                <div class="center-align" style="margin-top:16px;">
+                                    <button type="submit" class="btn teal darken-2 waves-effect waves-light">
+                                        <i class="material-icons left">save</i>Guardar Cambios
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<%- include('../partials/footer') %>
+
+<script>
+    guardRoute([]);
+
+    function showAlert(type, message) {
+        const container = document.getElementById('alert-container');
+        const colors = type === 'error'
+            ? 'red lighten-4 red-text darken-4'
+            : 'green lighten-4 green-text darken-4';
+        const id = 'alert-' + Date.now();
+
+        const el = document.createElement('div');
+        el.id = id;
+        el.className = `alert-dismissible card-panel ${colors}`;
+        el.innerHTML = `
+            <span class="alert-text">${message}</span>
+            <button class="alert-close" onclick="dismissAlert('${id}')" title="Cerrar">&times;</button>`;
+        container.appendChild(el);
+
+        setTimeout(() => dismissAlert(id), 5000);
+    }
+
+    function dismissAlert(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.add('fade-out');
+        setTimeout(() => el && el.remove(), 500);
+    }
+
+    async function loadProfile() {
+        try {
+            const res = await apiFetch('/api/users/me');
+            const user = await res.json();
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('profile-section').style.display = 'block';
+
+            document.getElementById('display-name').textContent = user.name + ' ' + (user.lastName || '');
+            document.getElementById('display-email').textContent = user.email;
+            document.getElementById('display-age').textContent = user.age ?? '--';
+
+            const rolesContainer = document.getElementById('display-roles');
+            rolesContainer.innerHTML = (user.roles || []).map(r =>
+                `<span class="chip role-${r}">${r}</span>`
+            ).join('');
+
+            if (user.url_profile) {
+                document.getElementById('avatar-container').innerHTML =
+                    `<img src="${user.url_profile}" alt="Avatar" class="circle responsive-img" style="width:80px;height:80px;object-fit:cover;">`;
+            }
+
+            document.getElementById('name').value = user.name || '';
+            document.getElementById('lastName').value = user.lastName || '';
+            document.getElementById('phoneNumber').value = user.phoneNumber || '';
+            document.getElementById('birthdate').value = user.birthdate ? user.birthdate.substring(0, 10) : '';
+            document.getElementById('address').value = user.address || '';
+            document.getElementById('url_profile').value = user.url_profile || '';
+
+            M.updateTextFields();
+
+        } catch (err) {
+            document.getElementById('loading').style.display = 'none';
+            showAlert('error', 'Error al cargar el perfil');
+        }
+    }
+
+    document.getElementById('profile-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const payload = {
+            name: document.getElementById('name').value.trim(),
+            lastName: document.getElementById('lastName').value.trim(),
+            phoneNumber: document.getElementById('phoneNumber').value.trim(),
+            birthdate: document.getElementById('birthdate').value,
+            address: document.getElementById('address').value.trim(),
+            url_profile: document.getElementById('url_profile').value.trim()
+        };
+
+        const newPassword = document.getElementById('newPassword').value;
+        if (newPassword) payload.password = newPassword;
+
+        try {
+            const res = await apiFetch('/api/users/me', {
+                method: 'PUT',
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                showAlert('error', data.message || 'Error al actualizar');
+                return;
+            }
+
+            showAlert('success', 'Perfil actualizado correctamente');
+            loadProfile();
+        } catch (err) {
+            if (err.message !== 'Sesión expirada' && err.message !== 'Acceso denegado') {
+                showAlert('error', 'Error de conexión');
+            }
+        }
+    });
+
+    loadProfile();
+</script>

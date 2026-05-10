@@ -1,0 +1,25 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main>
+    <div class="container center-align" style="padding-top:80px;">
+        <div class="card z-depth-3" style="max-width:500px; margin:0 auto; border-radius:8px;">
+            <div class="card-content">
+                <i class="material-icons red-text" style="font-size:100px;">block</i>
+                <h3 class="red-text">403</h3>
+                <h5>Acceso Denegado</h5>
+                <p class="grey-text">No tienes permisos suficientes para acceder a esta página.</p>
+            </div>
+            <div class="card-action center-align">
+                <a href="javascript:history.back()" class="btn-flat teal-text waves-effect">
+                    <i class="material-icons left">arrow_back</i>Volver
+                </a>
+                <a href="/dashboard" class="btn teal waves-effect waves-light">
+                    <i class="material-icons left">dashboard</i>Mi Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<%- include('../partials/footer') %>

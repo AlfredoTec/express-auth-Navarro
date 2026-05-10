@@ -1,0 +1,149 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main>
+    <div class="container">
+        <div id="loading" class="center-align" style="padding:60px;">
+            <div class="preloader-wrapper big active">
+                <div class="spinner-layer spinner-teal-only">
+                    <div class="circle-clipper left"><div class="circle"></div></div>
+                    <div class="gap-patch"><div class="circle"></div></div>
+                    <div class="circle-clipper right"><div class="circle"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="dashboard-content" style="display:none;">
+            <div class="row">
+                <div class="col s12">
+                    <div class="card teal darken-2 white-text z-depth-3" style="padding: 32px; border-radius:8px;">
+                        <h4 style="margin:0 0 8px;">
+                            <i class="material-icons medium">waving_hand</i>
+                            Bienvenido, <span id="user-name"></span>!
+                        </h4>
+                        <p style="margin:0; opacity:0.9; font-size:1.1rem;">Has iniciado sesión correctamente.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col s12 m6 l3">
+                    <div class="card z-depth-2">
+                        <div class="card-content center-align">
+                            <i class="material-icons large teal-text">person</i>
+                            <p class="grey-text">Nombre completo</p>
+                            <h6 id="info-fullname" class="truncate"></h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s12 m6 l3">
+                    <div class="card z-depth-2">
+                        <div class="card-content center-align">
+                            <i class="material-icons large teal-text">email</i>
+                            <p class="grey-text">Correo</p>
+                            <h6 id="info-email" class="truncate"></h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s12 m6 l3">
+                    <div class="card z-depth-2">
+                        <div class="card-content center-align">
+                            <i class="material-icons large teal-text">cake</i>
+                            <p class="grey-text">Edad</p>
+                            <h6 id="info-age"></h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s12 m6 l3">
+                    <div class="card z-depth-2">
+                        <div class="card-content center-align">
+                            <i class="material-icons large teal-text">verified_user</i>
+                            <p class="grey-text">Rol</p>
+                            <div id="info-roles"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col s12 m6">
+                    <div class="card z-depth-2">
+                        <div class="card-content">
+                            <span class="card-title"><i class="material-icons left teal-text">info</i>Datos de contacto</span>
+                            <table class="striped">
+                                <tbody>
+                                    <tr><td><strong>Teléfono</strong></td><td id="info-phone"></td></tr>
+                                    <tr><td><strong>Dirección</strong></td><td id="info-address"></td></tr>
+                                    <tr><td><strong>F. nacimiento</strong></td><td id="info-birthdate"></td></tr>
+                                    <tr><td><strong>Miembro desde</strong></td><td id="info-created"></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-action">
+                            <a href="/profile" class="teal-text">
+                                <i class="material-icons left">edit</i>Editar mi perfil
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s12 m6">
+                    <div class="card z-depth-2">
+                        <div class="card-content center-align">
+                            <span class="card-title"><i class="material-icons left teal-text">account_circle</i>Foto de perfil</span>
+                            <div id="avatar-display" style="margin-top:16px;">
+                                <i class="material-icons" style="font-size:100px; color:#b2dfdb;">account_circle</i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<%- include('../partials/footer') %>
+
+<script>
+    guardRoute(['user', 'admin']);
+
+    async function loadDashboard() {
+        try {
+            const res = await apiFetch('/api/users/me');
+            const user = await res.json();
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('dashboard-content').style.display = 'block';
+
+            document.getElementById('user-name').textContent = user.name;
+            document.getElementById('info-fullname').textContent = (user.name || '') + ' ' + (user.lastName || '');
+            document.getElementById('info-email').textContent = user.email;
+            document.getElementById('info-age').textContent = (user.age ?? '--') + ' años';
+            document.getElementById('info-phone').textContent = user.phoneNumber || '--';
+            document.getElementById('info-address').textContent = user.address || '--';
+            document.getElementById('info-birthdate').textContent = user.birthdate
+                ? new Date(user.birthdate).toLocaleDateString('es-PE')
+                : '--';
+            document.getElementById('info-created').textContent = user.createdAt
+                ? new Date(user.createdAt).toLocaleDateString('es-PE')
+                : '--';
+
+            const rolesContainer = document.getElementById('info-roles');
+            rolesContainer.innerHTML = (user.roles || []).map(r =>
+                `<span class="chip role-${r}">${r}</span>`
+            ).join('');
+
+            if (user.url_profile) {
+                document.getElementById('avatar-display').innerHTML =
+                    `<img src="${user.url_profile}" alt="Avatar" class="circle responsive-img" style="width:120px;height:120px;object-fit:cover;">`;
+            }
+
+        } catch (err) {
+            if (err.message !== 'Sesión expirada') {
+                document.getElementById('loading').innerHTML =
+                    '<p class="red-text">Error al cargar los datos del usuario.</p>';
+            }
+        }
+    }
+
+    loadDashboard();
+</script>

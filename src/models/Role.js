@@ -1,11 +1,11 @@
 import mongoose from 'mongoose';
 
 const RoleSchema = new mongoose.Schema({
-    name: { 
-        type: String, 
-        required: true, 
-        unique: true, 
-        enum: ['user', 'admin'] 
+    name: {
+        type: String,
+        required: true,
+        unique: true,
+        enum: ['user', 'admin']
     }
 }, { timestamps: true });
 

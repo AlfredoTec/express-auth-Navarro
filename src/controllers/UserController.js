@@ -19,6 +19,15 @@ class UserController {
             next(err);
         }
     }
+
+    async updateMe(req, res, next) {
+        try {
+            const user = await userService.updateMe(req.userId, req.body);
+            res.status(200).json(user);
+        } catch (err) {
+            next(err);
+        }
+    }
 }
 
 export default new UserController();
